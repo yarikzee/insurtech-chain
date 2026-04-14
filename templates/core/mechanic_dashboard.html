@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Мои ремонты{% endblock %}
+
+{% block content %}
+<div class="mobile-page">
+    <div class="mobile-shell">
+        <div class="dashboard-screen">
+
+            <div class="sync-toast hidden" id="syncToast">
+                <span class="sync-spinner">⟳</span>
+                <span>Синхронизация...</span>
+            </div>
+
+            <div class="top-bar">
+                <div class="user-block">
+                    <div class="avatar"></div>
+                    <div class="greeting">
+                        <span>Привет, {{ mechanic_name }}!</span>
+                    </div>
+                </div>
+                <a href="{% url 'logout' %}" class="logout-link">Выйти</a>
+            </div>
+
+            <h2 class="section-title">Мои ремонты</h2>
+
+            <div class="repair-list">
+                {% for repair in repair_cards %}
+                    <div class="repair-card" onclick="window.location.href='{% url "repair_detail" repair.id %}'">
+                        <div class="card-header">
+                            <span class="car-title">{{ repair.car_title }}</span>
+                            <span class="vin">VIN • {{ repair.vin_short }}</span>
+                        </div>
+
+                        <div class="status-label">{{ repair.status }}</div>
+
+                        <div class="progress-bar">
+                            {% for _ in repair.steps_range %}
+                                {% if forloop.counter <= repair.completed_steps %}
+                                    <div class="step done"></div>
+                                {% else %}
+                                    <div class="step"></div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="progress-text">
+                            Выполнено {{ repair.completed_steps }} из {{ repair.total_steps }}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="empty-state">
+                        <h3>Активных ремонтов нет</h3>
+                        <p>Когда тебе назначат ремонт, он появится здесь.</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button class="archive-btn" type="button">
+                Завершённые
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

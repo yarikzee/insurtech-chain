@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Запрос доп. работ{% endblock %}
+
+{% block content %}
+<div class="mobile-page">
+    <div class="mobile-shell">
+        <div class="repair-screen">
+
+            <div class="repair-header-card">
+                <div class="repair-header-top">
+                    <a href="{% url 'repair_detail' repair.id %}" class="back-btn">←</a>
+
+                    <div class="repair-header-text">
+                        <h1>Запрос доп. работ</h1>
+                        <p>{{ repair.get_status_display }}</p>
+                    </div>
+                </div>
+
+                <div class="repair-vin">
+                    VIN: {{ repair.vin }}
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="repair-info-card form-stack">
+                {% csrf_token %}
+
+                <div class="capture-preview-grid">
+                    <label class="upload-preview-card" for="id_photo_1">
+                        <div class="upload-preview-image" id="work_preview_1">
+                            <span>Фото 1</span>
+                        </div>
+                        <div class="upload-preview-caption">Добавить фото дефекта</div>
+                    </label>
+
+                    <label class="upload-preview-card" for="id_photo_2">
+                        <div class="upload-preview-image" id="work_preview_2">
+                            <span>Фото 2</span>
+                        </div>
+                        <div class="upload-preview-caption">Добавить фото дефекта</div>
+                    </label>
+
+                    <label class="upload-preview-card" for="id_photo_3">
+                        <div class="upload-preview-image" id="work_preview_3">
+                            <span>Фото 3</span>
+                        </div>
+                        <div class="upload-preview-caption">Добавить фото дефекта</div>
+                    </label>
+                </div>
+
+                <div class="capture-hidden-inputs">
+                    {{ form.photo_1 }}
+                    {{ form.photo_2 }}
+                    {{ form.photo_3 }}
+                </div>
+
+                <div class="field-group">
+                    <label>{{ form.title.label }}</label>
+                    {{ form.title }}
+                </div>
+
+                <div class="field-group">
+                    <label>{{ form.description.label }}</label>
+                    {{ form.description }}
+                </div>
+
+                <div class="field-group">
+                    <label>{{ form.estimated_cost.label }}</label>
+                    {{ form.estimated_cost }}
+                </div>
+
+                <button type="submit" class="main-btn">Отправить запрос</button>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

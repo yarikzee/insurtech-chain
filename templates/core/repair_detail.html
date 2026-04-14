@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Карточка ремонта{% endblock %}
+
+{% block content %}
+<div class="mobile-page">
+    <div class="mobile-shell">
+        <div class="repair-screen">
+
+            <div class="repair-header-card">
+                <div class="repair-header-top">
+                    <a href="{% url 'mechanic_dashboard' %}" class="back-btn">←</a>
+
+                    <div class="repair-header-text">
+                        <h1>Ремонт {{ repair.insurance_case_number }}</h1>
+                        <p>{{ repair.get_status_display }}</p>
+                    </div>
+                </div>
+
+                <div class="repair-vin">
+                    VIN: {{ repair.vin }}
+                </div>
+            </div>
+
+            <div class="repair-info-card">
+                <div class="repair-info-row">
+                    <span class="repair-info-label">Заказчик:</span>
+                    <span>{{ repair.organization_insurer }}</span>
+                </div>
+                <div class="repair-info-row">
+                    <span class="repair-info-label">Номер дела:</span>
+                    <span>{{ repair.insurance_case_number }}</span>
+                </div>
+            </div>
+
+            <div class="checkpoints-list">
+                {% for checkpoint in checkpoint_cards %}
+                    <div class="checkpoint-card">
+                        <div class="checkpoint-header">
+                            <div class="checkpoint-status-icon {% if checkpoint.is_completed %}done{% endif %}">
+                                {% if checkpoint.is_completed %}✓{% endif %}
+                            </div>
+
+                            <div class="checkpoint-title">
+                                {{ checkpoint.name }}
+                            </div>
+
+                            {% if not checkpoint.is_completed %}
+                                <a href="{% url 'capture_step' checkpoint.id %}" class="checkpoint-add-btn">+</a>
+                            {% endif %}
+                        </div>
+
+                        {% if checkpoint.parts %}
+                            <div class="part-chip-list">
+                                {% for part in checkpoint.parts %}
+                                    <div class="part-chip">{{ part.qr_code_value }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        {% if checkpoint.media_items %}
+                            <div class="checkpoint-media-list">
+                                {% for media in checkpoint.media_items %}
+                                    <div class="media-thumb">
+                                        <img src="{{ media.file_url }}" alt="Фото этапа">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="additional-works-section">
+                <div class="additional-works-top">
+                    <h2>Дополнительные работы</h2>
+                    <a href="{% url 'additional_work_request_create' repair.id %}" class="request-btn">Запросить</a>
+                </div>
+
+                {% for work in additional_requests %}
+                    <div class="additional-work-card">
+                        <div class="checkpoint-header">
+                            <div class="checkpoint-status-icon {% if work.status == 'approved' %}done{% endif %}">
+                                {% if work.status == 'approved' %}✓{% endif %}
+                            </div>
+
+                            <div class="checkpoint-title">
+                                {{ work.title }}
+                            </div>
+                        </div>
+
+                        <div class="additional-work-meta">
+                            Статус: {{ work.get_status_display }}
+                        </div>
+
+                        {% if work.media_items %}
+                            <div class="checkpoint-media-list">
+                                {% for item in work.media_items %}
+                                    <div class="media-thumb">
+                                        <img src="{{ item.file_url }}" alt="Фото дефекта">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="additional-work-comment">
+                            Комментарий: {{ work.description }}
+                        </div>
+
+                        {% if work.reviewer_comment %}
+                            <div class="additional-work-comment">
+                                Ответ страховой: {{ work.reviewer_comment }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <div class="empty-mini-card">
+                        Дополнительные работы ещё не запрашивались.
+                    </div>
+                {% endfor %}
+            </div>
+
+            <form method="post" action="{% url 'finish_repair' repair.id %}">
+                {% csrf_token %}
+                <button
+                    type="submit"
+                    class="finish-btn {% if not all_required_completed %}disabled{% endif %}"
+                    {% if not all_required_completed %}disabled{% endif %}
+                >
+                    Завершить
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

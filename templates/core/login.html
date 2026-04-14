@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Вход | InsurTech Chain{% endblock %}
+
+{% block content %}
+<div class="mobile-page">
+    <div class="mobile-shell">
+        <div class="login-screen">
+            <div class="brand-card">
+                <div class="brand-glow"></div>
+                <div class="brand-content">
+                    <div class="brand-badge">MVP</div>
+                    <h1>InsurTech Chain</h1>
+                    <p>Цифровой контроль страхового ремонта</p>
+                </div>
+            </div>
+
+            <div class="auth-card">
+                <div class="role-tabs">
+                    <button class="role-tab active" type="button" data-role="insurer">Страховая</button>
+                    <button class="role-tab" type="button" data-role="sto">СТО</button>
+                    <button class="role-tab" type="button" data-role="mechanic">Механик</button>
+                </div>
+
+                <form class="auth-form" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="role" id="selectedRole" value="insurer">
+
+                    <div class="form-section" id="insurerFields">
+                        <div class="field-group">
+                            <label for="insurer-email">Email</label>
+                            <input type="email" name="insurer_email" id="insurer-email" placeholder="manager@company.ru">
+                        </div>
+
+                        <div class="field-group">
+                            <label for="insurer-password">Пароль</label>
+                            <input type="password" name="insurer_password" id="insurer-password" placeholder="Введите пароль">
+                        </div>
+
+                        <a class="form-link" href="#">Забыли пароль?</a>
+
+                        <button type="submit" class="main-btn">Войти</button>
+                    </div>
+
+                    <div class="form-section hidden" id="stoFields">
+                        <div class="field-group">
+                            <label for="sto-email">Email</label>
+                            <input type="email" name="sto_email" id="sto-email" placeholder="admin@sto.ru">
+                        </div>
+
+                        <div class="field-group">
+                            <label for="sto-password">Пароль</label>
+                            <input type="password" name="sto_password" id="sto-password" placeholder="Введите пароль">
+                        </div>
+
+                        <a class="form-link" href="#">Забыли пароль?</a>
+
+                        <button type="submit" class="main-btn">Войти</button>
+                    </div>
+
+                    <div class="form-section hidden" id="mechanicFields">
+                        <div class="field-group single-column">
+                            <label for="mechanic-phone">Номер телефона</label>
+                            <input type="text" name="phone" id="mechanic-phone" placeholder="+79990000003">
+                        </div>
+
+                        <button type="button" class="secondary-btn" id="getCodeBtn">
+                            Получить код
+                        </button>
+
+                        <div class="sms-block hidden" id="smsBlock">
+                            <div class="field-group single-column">
+                                <label for="mechanic-sms">SMS-код</label>
+                                <input type="text" name="sms_code" id="mechanic-sms" placeholder="1234">
+                            </div>
+
+                            <a class="form-link" href="#">Не пришёл код?</a>
+
+                            <button type="submit" class="main-btn">Войти</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <button type="button" class="register-btn">
+                Регистрация организации
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Фотофиксация{% endblock %}
+
+{% block content %}
+<div class="mobile-page">
+    <div class="mobile-shell">
+        <div class="capture-screen">
+
+            <div class="capture-header-card">
+                <a href="{% url 'repair_detail' repair.id %}" class="back-btn back-btn-small">←</a>
+                <div class="capture-header-text">
+                    {% if mode == "scan" %}
+                        Отсканируйте запчасть / введите QR-код
+                    {% else %}
+                        Загрузите фотографии этапа
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if mode == "photo" %}
+                <form method="post" enctype="multipart/form-data" class="capture-form-card">
+                    {% csrf_token %}
+
+                    <div class="capture-preview-grid">
+                        <label class="upload-preview-card" for="id_photo_1">
+                            <div class="upload-preview-image" id="preview_1">
+                                <span>Фото 1</span>
+                            </div>
+                            <div class="upload-preview-caption">Выбрать фото</div>
+                        </label>
+
+                        <label class="upload-preview-card" for="id_photo_2">
+                            <div class="upload-preview-image" id="preview_2">
+                                <span>Фото 2</span>
+                            </div>
+                            <div class="upload-preview-caption">Выбрать фото</div>
+                        </label>
+
+                        <label class="upload-preview-card" for="id_photo_3">
+                            <div class="upload-preview-image" id="preview_3">
+                                <span>Фото 3</span>
+                            </div>
+                            <div class="upload-preview-caption">Выбрать фото</div>
+                        </label>
+                    </div>
+
+                    <div class="capture-hidden-inputs">
+                        {{ form.photo_1 }}
+                        {{ form.photo_2 }}
+                        {{ form.photo_3 }}
+                    </div>
+
+                    <div class="geotag-indicator">
+                        При загрузке фото этап будет отмечен как выполненный
+                    </div>
+
+                    <button type="submit" class="main-btn">Готово</button>
+                </form>
+            {% else %}
+                <form method="post" class="capture-form-card">
+                    {% csrf_token %}
+
+                    <div class="field-group">
+                        <label>Артикул / QR-код</label>
+                        {{ form.qr_code_value }}
+                    </div>
+
+                    <div class="field-group">
+                        <label>Название детали</label>
+                        {{ form.part_name }}
+                    </div>
+
+                    <div class="field-group">
+                        <label>Номер детали</label>
+                        {{ form.part_number }}
+                    </div>
+
+                    <button type="submit" class="main-btn">Подтвердить</button>
+                </form>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

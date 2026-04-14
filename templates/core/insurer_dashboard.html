@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Страховая{% endblock %}
+
+{% block content %}
+<div class="mobile-page">
+    <div class="mobile-shell">
+
+        <div class="insurer-screen">
+
+            <div class="insurer-header">
+                <div class="insurer-avatar"></div>
+
+                <div class="insurer-title">
+                    АльфаСтрахование
+                </div>
+
+                <div class="insurer-bell">
+                    🔔
+                    {% if pending_requests_count %}
+                        <span class="bell-badge">{{ pending_requests_count }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="logout-wrap">
+                <a href="{% url 'logout' %}" class="logout-link">Выйти</a>
+            </div>
+
+            <form method="get" class="insurer-filters-bar">
+                <input
+                    type="text"
+                    name="q"
+                    placeholder="VIN или номер дела"
+                    class="insurer-search-input"
+                    value="{{ request.GET.q }}"
+                >
+
+                <select name="sto" class="insurer-filter-select">
+                    <option value="">СТО</option>
+                    {% for id, name in stos %}
+                        <option value="{{ id }}" {% if request.GET.sto == id|stringformat:"s" %}selected{% endif %}>
+                            {{ name }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <select name="status" class="insurer-filter-select">
+                    <option value="">Статус</option>
+                    <option value="created" {% if request.GET.status == "created" %}selected{% endif %}>Создан</option>
+                    <option value="in_progress" {% if request.GET.status == "in_progress" %}selected{% endif %}>В работе</option>
+                    <option value="waiting_approval" {% if request.GET.status == "waiting_approval" %}selected{% endif %}>Ожидает согласования</option>
+                    <option value="completed" {% if request.GET.status == "completed" %}selected{% endif %}>Завершён</option>
+                </select>
+
+                <button type="submit" class="insurer-filter-btn">
+                    Найти
+                </button>
+            </form>
+
+            <div class="insurer-repair-list">
+                {% for repair in repair_cards %}
+                    <a href="{% url 'insurer_repair_detail' repair.id %}" class="insurer-repair-card">
+                        <div class="insurer-repair-left">
+                            <div class="insurer-repair-sto">{{ repair.sto }}</div>
+                            <div class="insurer-repair-vin">{{ repair.vin }}</div>
+                            <div class="insurer-repair-meta">{{ repair.status }}</div>
+                            <div class="insurer-repair-date">{{ repair.start_date|date:"d.m.Y" }}</div>
+                        </div>
+
+                        <div class="insurer-repair-progress">
+                            {{ repair.progress }}%
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="empty-state">
+                        <h3>Ремонты не найдены</h3>
+                        <p>Попробуй изменить параметры фильтрации.</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}

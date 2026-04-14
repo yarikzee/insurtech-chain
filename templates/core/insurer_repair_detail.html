@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Ремонт | Страховая{% endblock %}
+
+{% block content %}
+<div class="mobile-page">
+    <div class="mobile-shell">
+        <div class="repair-screen">
+
+            <div class="repair-header-card">
+                <div class="repair-header-top">
+                    <a href="{% url 'insurer_dashboard' %}" class="back-btn">←</a>
+
+                    <div class="repair-header-text">
+                        <h1>Ремонт {{ repair.insurance_case_number }}</h1>
+                        <p>{{ repair.get_status_display }}</p>
+                    </div>
+                </div>
+
+                <div class="repair-vin">
+                    VIN: {{ repair.vin }}
+                </div>
+            </div>
+
+            <div class="repair-info-card">
+                <div class="repair-info-row">
+                    <span class="repair-info-label">СТО:</span>
+                    <span>{{ repair.organization_sto }}</span>
+                </div>
+                <div class="repair-info-row">
+                    <span class="repair-info-label">Механик:</span>
+                    <span>
+                        {% if repair.assigned_mechanic_user %}
+                            {{ repair.assigned_mechanic_user.full_name }}
+                        {% else %}
+                            Не назначен
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="repair-info-row">
+                    <span class="repair-info-label">Рейтинг СТО по ремонту:</span>
+                    <div class="repair-rating-wrap">
+                        <div class="rating-stars" data-rating="{{ rating_percent }}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-switcher">
+                <a href="?tab=steps" class="tab-switch-btn {% if active_tab == 'steps' %}active{% endif %}">Этапы</a>
+                <a href="?tab=works" class="tab-switch-btn {% if active_tab == 'works' %}active{% endif %}">Доп. работы</a>
+                <a href="?tab=docs" class="tab-switch-btn {% if active_tab == 'docs' %}active{% endif %}">Документы</a>
+            </div>
+
+            {% if active_tab == "steps" %}
+                <div class="checkpoints-list">
+                    {% for checkpoint in checkpoint_cards %}
+                        <div class="checkpoint-card">
+                            <div class="checkpoint-header">
+                                <div class="checkpoint-status-icon {% if checkpoint.is_completed %}done{% endif %}">
+                                    {% if checkpoint.is_completed %}✓{% endif %}
+                                </div>
+
+                                <div class="checkpoint-title">
+                                    {{ checkpoint.name }}
+                                </div>
+                            </div>
+
+                            <div class="additional-work-meta">
+                                Статус: {{ checkpoint.status }}
+                            </div>
+
+                            {% if checkpoint.completed_at %}
+                                <div class="additional-work-meta">
+                                    Дата и время: {{ checkpoint.completed_at|date:"d.m.Y H:i" }}
+                                </div>
+                            {% endif %}
+
+                            {% if checkpoint.media_items %}
+                                <div class="checkpoint-media-list">
+                                    {% for media in checkpoint.media_items %}
+                                        <div class="media-thumb">
+                                            <img src="{{ media.file_url }}" alt="Фото этапа">
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% elif active_tab == "works" %}
+                <div class="additional-works-section">
+                    {% for work in additional_requests %}
+                        <div class="additional-work-card">
+                            <div class="checkpoint-header">
+                                <div class="checkpoint-status-icon {% if work.status == 'approved' %}done{% endif %}">
+                                    {% if work.status == 'approved' %}✓{% endif %}
+                                </div>
+
+                                <div class="checkpoint-title">
+                                    {{ work.title }}
+                                </div>
+                            </div>
+
+                            {% if work.media_items %}
+                                <div class="checkpoint-media-list">
+                                    {% for item in work.media_items %}
+                                        <div class="media-thumb">
+                                            <img src="{{ item.file_url }}" alt="Фото дефекта">
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            <div class="additional-work-comment">
+                                Комментарий механика: {{ work.description }}
+                            </div>
+
+                            <div class="additional-work-meta">
+                                Стоимость: {{ work.estimated_cost }} ₽
+                            </div>
+
+                            <div class="additional-work-meta">
+                                Статус: {{ work.get_status_display }}
+                            </div>
+
+                            {% if work.status == "pending" %}
+                                <form method="post" action="{% url 'review_additional_work' work.id %}" class="review-form">
+                                    {% csrf_token %}
+                                    <div class="field-group">
+                                        <label>Комментарий</label>
+                                        {{ review_form.reviewer_comment }}
+                                    </div>
+
+                                    <div class="review-actions">
+                                        <button type="submit" name="action" value="approve" class="approve-btn">Одобрить</button>
+                                        <button type="submit" name="action" value="reject" class="reject-btn">Отклонить</button>
+                                    </div>
+                                </form>
+                            {% elif work.reviewer_comment %}
+                                <div class="additional-work-comment">
+                                    Комментарий страховой: {{ work.reviewer_comment }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% empty %}
+                        <div class="empty-mini-card">
+                            Дополнительные работы отсутствуют.
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="repair-info-card">
+                    <div class="repair-info-row">
+                        <span class="repair-info-label">Скан направления:</span>
+                        <span>Пока не загружен</span>
+                    </div>
+                    <div class="repair-info-row">
+                        <span class="repair-info-label">Итоговый отчёт:</span>
+                        <span>
+                            {% if repair.final_report_url %}
+                                <a href="{{ repair.final_report_url }}" target="_blank">Открыть отчёт</a>
+                            {% else %}
+                                Не сформирован
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
