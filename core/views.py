@@ -11,6 +11,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.db import connection
 
+from .bitrix24 import sync_repair_to_bitrix
+
 def get_additional_work_media_map(work_ids):
     if not work_ids:
         return {}
@@ -443,7 +445,12 @@ def additional_work_request_create(request, repair_id):
         repair.updated_at = timezone.now()
         repair.save(update_fields=["status", "updated_at"])
 
-        messages.success(request, "Запрос на дополнительные работы отправлен.")
+        try:
+            sync_repair_to_bitrix(repair)
+            messages.success(request, "Запрос на дополнительные работы отправлен и синхронизирован с CRM.")
+        except Exception:
+            messages.warning(request, "Запрос отправлен, но синхронизация с CRM не выполнена.")
+
         return redirect("repair_detail", repair_id=repair.id)
 
     return render(
@@ -477,7 +484,12 @@ def finish_repair(request, repair_id):
     repair.updated_at = timezone.now()
     repair.save(update_fields=["status", "completed_at", "updated_at"])
 
-    messages.success(request, "Ремонт завершён.")
+    try:
+        sync_repair_to_bitrix(repair)
+        messages.success(request, "Ремонт завершён и синхронизирован с CRM.")
+    except Exception:
+        messages.warning(request, "Ремонт завершён, но синхронизация с CRM не выполнена.")
+
     return redirect("mechanic_dashboard")
 
 
@@ -636,5 +648,10 @@ def review_additional_work(request, work_id):
 
     work.updated_at = timezone.now()
     work.save(update_fields=["reviewed_by_user", "reviewed_at", "reviewer_comment", "status", "updated_at"])
+
+    try:
+        sync_repair_to_bitrix(work.repair_order)
+    except Exception:
+        messages.warning(request, "Решение сохранено, но синхронизация с CRM не выполнена.")
 
     return redirect(f"{redirect('insurer_repair_detail', repair_id=work.repair_order.id).url}?tab=works")
